@@ -14,6 +14,9 @@ def generate_bibtex_citation(url):
     if not is_lingbuzz_url(url):
         print(str(url))
         return {"error": "Not a LingBuzz link"}
+
+    if url == "https://lingbuzz.net/":
+        return {"error": "Not a LingBuzz resource"}
     
     response = requests.get(url)
     if response.status_code != 200:
@@ -78,6 +81,9 @@ def generate_apa_citation(url):
 
     if not is_lingbuzz_url(url):
         return {"error": "Not a LingBuzz link"}
+
+    if url == "https://lingbuzz.net/":
+        return {"error": "Not a LingBuzz resource"}
         
     response = requests.get(url)
     if response.status_code != 200:
