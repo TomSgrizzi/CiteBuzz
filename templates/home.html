@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="static/assets/output.png" type="image/png"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>CiteBuzz - Export LingBuzz Citations</title>
+    <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous" />
+    <link rel="stylesheet" type="text/css" href="static/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="static/css/fonts.css" />
+    <link rel="stylesheet" type="text/css" href="static/css/CiteBuzz.css" />
+    <style>
+        .cite-buzz .output {
+            color: white; 
+            white-space: pre-wrap; 
+        }
+
+        /* CSS to hide the main title on mobile devices */
+        @media (max-width: 767px) {
+            .mainTitleText {
+                display: none !important;
+            }
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="flex-column">
+    <div class="cite-buzz mainContentSection">
+        <div class="flexColumn">
+            <div class="flexRow">
+                    <h3 class="authorSubtitle">
+                        <a href="https://tomsgrizzi.github.io/" target="_blank" style="text-decoration: none; color: inherit;">by Tommaso Sgrizzi</a>
+                    </h3>
+                    <a href="https://tomsgrizzi.github.io/" target="_blank" style="text-decoration: none; color: inherit;"><img class="contentImage" src="static/assets/fc2ab112881ddd486c5fc81dca69b588.png" alt="alt text" /></a>               
+            </div>
+            
+            <div class="infoGroup">
+                <div class="flexRowInfo">
+                    <div class="flexColumnInfo">
+                        <div class="contentBoxFeatured" style="--src:url(../assets/ec3da71ac77f6dfc750ae2dfebf5c7b7.png)">
+                            <h2 class="mainTitle">
+                                <h2 class="mainTitleText"> Export LingBuzz citations without effort</h2>
+                            </h2>
+                        </div>
+                        <div class="flexColumnLink">
+                            <div class="contentBoxLink">
+                                <input type="text" id="url" class="form-control" placeholder="Enter LingBuzz link..." aria-label="Enter URL..." />
+                            </div>
+                            <div class="actionRow">
+                                <button class="btnBibtex" id="generateBibtex">
+                                    BIBTEX
+                                </button>
+                                <button class="btnApa" id="generateApa">
+                                    APA
+                                </button>
+                            </div>
+                            <div class="copyRow">
+                                <button class="copybtn hidden" id="copyButton">
+                                  Copy Output
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="contentPlaceholder">
+                    <div class="output" id="output"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+    function isValidUrl(url) {
+        const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+        '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+        return !!pattern.test(url);
+    }
+
+    $('#generateBibtex').click(function(event) {
+        event.preventDefault();
+        var url = $('#url').val();
+        if (!isValidUrl(url)) {
+            $('#output').html('<p style="color: red;">Invalid URL format. Please enter a valid URL.</p>');
+            return;
+        }
+        $.ajax({
+            type: 'POST',
+            url: '/generate_bibtex',
+            contentType: 'application/json',
+            data: JSON.stringify({url: url}),
+            success: function(response) {
+                if (response.error) {
+                    $('#output').html('<p style="color: red;">Error: ' + response.error + '</p>');
+                } else {
+                    $('#output').html('<pre>' + response.bibtex + '</pre>');
+                    $('#copyButton').removeClass('hidden'); // Show copy button
+                }
+            },
+            error: function(xhr, status, error) {
+                $('#output').html('<p style="color: red;">Error: ' + xhr.responseJSON.error + '</p>');
+            }
+        });
+    });
+
+    $('#generateApa').click(function(event) {
+        event.preventDefault();
+        var url = $('#url').val();
+        if (!isValidUrl(url)) {
+            $('#output').html('<p style="color: red;">Invalid URL format. Please enter a valid URL.</p>');
+            return;
+        }
+        $.ajax({
+            type: 'POST',
+            url: '/generate_apa',
+            contentType: 'application/json',
+            data: JSON.stringify({url: url}),
+            success: function(response) {
+                if (response.error) {
+                    $('#output').html('<p style="color: red;">Error: ' + response.error + '</p>');
+                } else {
+                    $('#output').html('<pre>' + response.apa + '</pre>');
+                    $('#copyButton').removeClass('hidden'); // Show copy button
+                }
+            },
+            error: function(xhr, status, error) {
+                $('#output').html('<p style="color: red;">Error: ' + xhr.responseJSON.error + '</p>');
+            }
+        });
+    });
+
+    $('#copyButton').click(function() {
+        var outputText = $('#output').text();
+        navigator.clipboard.writeText(outputText).then(function() {
+            alert('Copied to clipboard!');
+        }, function(err) {
+            console.error('Could not copy text: ', err);
+        });
+    });
+});
+
+    </script>
+</body>
+</html>
