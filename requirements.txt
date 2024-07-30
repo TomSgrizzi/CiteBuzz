@@ -1,8 +1,9 @@
+waitress
 chardet==5.2.0
+Flask==3.0.3
 charset-normalizer==2.1.1
 jsonpointer==2.1
 requests==2.28.1
 ruamel.yaml==0.17.21
 setuptools==69.5.1
 wheel==0.43.0
-waitress==3.0.0
